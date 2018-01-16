@@ -1,0 +1,17 @@
+{
+  "name": "location-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "Philip Van Raalte",
+  "license": "ISC",
+  "dependencies": {
+    "arangojs": "^5.8.0",
+    "lodash": "^4.17.4",
+    "restify": "^6.3.4",
+    "restify-cors-middleware": "^1.1.0"
+  }
+}
