@@ -213,34 +213,6 @@ server.del('/data/:key', async (req, res, next) => {
 
 });
 
-setInterval(() => {
-  LOCATIONS.all().then(
-    cursor => cursor.map(doc => doc)
-  ).then(
-    keys =>
-      keys.forEach(({_key, locations}) => {
-        let newPos = locations.slice(-1)[0];
-        newPos.latitude = _.round(
-          Number(newPos.latitude) + _.random(-0.1, 0.1),
-          2
-        ).toString() || newPos.latitude;
-        newPos.longitude = _.round(
-          Number(newPos.longitude)  + _.random(-0.1, 0.1),
-          2
-        ).toString() || newPos.longitude;
-        newPos.elevation = _.round(
-          Number(newPos.elevation) + _.random(-20, 20),
-          2
-        ).toString() || newPos.elevation;
-        newPos.datetime = Date.now().toString();
-
-        locations.push(newPos);
-
-        LOCATIONS.update(_key, {locations});
-      })
-  )
-}, 5 * 60 * 1000); // 5 * 60 * 1000 every 5 minutes
-
 server.listen(7131, () => {
   console.log('%s listening at %s', server.name, server.url);
 });
