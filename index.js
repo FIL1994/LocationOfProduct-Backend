@@ -7,7 +7,9 @@ const restify = require('restify');
 const errs = require('restify-errors');
 const corsMiddleware = require('restify-cors-middleware');
 const _ = require('lodash');
-const {USER, PASSWORD} = require('./config/auth');
+const geocoder = require('geocoder');
+const {USER, PASSWORD, GOOGLE_MAPS_KEY} = require('./config/auth');
+const {tryCatch, iterableArray, getGeoAddress} = require('./utils');
 
 // region Arango Connection
 const db = new Database('http://45.77.106.244:8529');
@@ -113,7 +115,10 @@ async function postLocation(req, res, next) {
 
   const {longitude, latitude, elevation, datetime} = object;
   object = _.omit(object, ["longitude", "latitude", "elevation", "datetime"]);
-  object.locations = [{longitude, latitude, elevation, datetime}];
+  object.locations = [{
+    longitude, latitude, elevation, datetime,
+    address: await getGeoAddress(latitude, longitude, GOOGLE_MAPS_KEY)
+  }];
 
   if(!_.isEmpty(key)) {
     object._key = key;
@@ -165,6 +170,10 @@ server.patch('/data/:key', async (req, res, next) => {
 
   if(!_.isEmpty(newObject.locations)) {
     newObject.locations = _.sortBy(newObject.locations, 'datetime');
+    for(let i = 0; i < newObject.locations.length; i++) {
+      const {latitude, longitude} = newObject.locations[i];
+      newObject.locations[i].address = await getGeoAddress(latitude, longitude, GOOGLE_MAPS_KEY);
+    }
   }
 
   const result = await new Promise(resolve =>
